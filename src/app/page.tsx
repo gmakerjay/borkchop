@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 
 export default function RomanticFonPage() {
   // ---------------------------------------------------------------------------
-  // 1. Particle Canvas Engine (Flying Clouds & Heart Dust)
+  // 1. Particle Canvas Engine (Floating Clouds & Pastel Hearts)
   // ---------------------------------------------------------------------------
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -27,7 +27,6 @@ export default function RomanticFonPage() {
 
     window.addEventListener("resize", handleResize);
 
-    // Particle item definitions
     const symbols = ["☁️", "💖", "💕", "🌸", "✨", "💗", "☁️", "🍦"];
     const particles: Array<{
       x: number;
@@ -43,16 +42,15 @@ export default function RomanticFonPage() {
       life: number;
     }> = [];
 
-    // Initialize floating ambient sky particles
-    for (let i = 0; i < 35; i++) {
+    for (let i = 0; i < 40; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        size: Math.random() * 20 + 14,
-        speedY: -Math.random() * 0.8 - 0.4,
-        speedX: Math.sin(Math.random() * Math.PI) * 0.5,
+        size: Math.random() * 22 + 14,
+        speedY: -Math.random() * 0.9 - 0.4,
+        speedX: Math.sin(Math.random() * Math.PI) * 0.6,
         symbol: symbols[Math.floor(Math.random() * symbols.length)],
-        opacity: Math.random() * 0.6 + 0.3,
+        opacity: Math.random() * 0.6 + 0.35,
         rotation: Math.random() * 360,
         rotSpeed: (Math.random() - 0.5) * 1.5,
         isBurst: false,
@@ -103,63 +101,18 @@ export default function RomanticFonPage() {
     };
   }, []);
 
-  // Spawn particle burst helper
-  const triggerParticleBurst = (x: number, y: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const symbols = ["☁️", "💖", "✨", "🌸", "💕"];
-    for (let i = 0; i < 15; i++) {
-      const p = {
-        x,
-        y,
-        size: Math.random() * 24 + 16,
-        speedY: (Math.random() - 0.5) * 8,
-        speedX: (Math.random() - 0.5) * 8,
-        symbol: symbols[Math.floor(Math.random() * symbols.length)],
-        opacity: 1,
-        rotation: Math.random() * 360,
-        rotSpeed: (Math.random() - 0.5) * 4,
-        isBurst: true,
-        life: 80,
-      };
-      // Access canvas state
-    }
-  };
-
   // ---------------------------------------------------------------------------
-  // 2. Love Quotes Carousel (Chat & Flirting Focus)
-  // ---------------------------------------------------------------------------
-  const quotes = [
-    "“ ข้อความตอบกลับจากฝน... คือสิ่งที่ทำให้พี่อารมณ์ดีได้ทั้งวันเลยครับ 💬✨ ”",
-    "“ ถึงยังไม่เคยเจอตัวจริง แต่แค่เห็นรูปเห็นแชท ก็น่ารักจนพี่ใจฟูแล้วนะ 🌸 ”",
-    "“ หวังว่าเร็วๆ นี้... จะมีโอกาสได้พาฝนไปทานขนมอร่อยๆ ด้วยกันนะ 🍦💖 ”",
-    "“ ถ้าฝนยังไม่มีใครจอง... พี่ขอสมัครเป็นคนที่ตั้งใจจีบฝนที่สุดได้ไหมครับ 🥺☁️ ”",
-  ];
-
-  const [activeQuote, setActiveQuote] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveQuote((prev) => (prev + 1) % quotes.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, [quotes.length]);
-
-  // ---------------------------------------------------------------------------
-  // 3. Playful Dodge Button ("ขอคิดดูก่อน 🙈")
+  // 2. Playful Dodge Button ("ขอคิดดูก่อน 🙈")
   // ---------------------------------------------------------------------------
   const [dodgePos, setDodgePos] = useState<{ x: number; y: number } | null>(null);
   const [dodgeTextIndex, setDodgeTextIndex] = useState(0);
 
   const dodgeMessages = [
-    "คุยแชทกันตั้งนาน จะใจร้ายหรอคะ? 🥺",
-    "เดี๋ยวพาไปเลี้ยงไอติมเลยน้า! 🍦",
+    "จะใจร้ายหรอคะ? 🥺",
     "ให้โอกาสพี่หน่อยน้า ✨",
     "กดปุ่มสีชมพูเถอะน้า 💕",
     "พี่ตั้งใจจีบจริงๆ นะ 🌸",
+    "เดี๋ยวเลี้ยงไอติมเลยน้า! 🍦",
     "อย่าเพิ่งหนีพี่เลยน้า 😭",
     "ปุ่มนี้จับยากนะ แนะนำกดซ้าย! 🙈",
   ];
@@ -178,7 +131,7 @@ export default function RomanticFonPage() {
   };
 
   // ---------------------------------------------------------------------------
-  // 4. Modal & Celebration
+  // 3. Modal & Celebration
   // ---------------------------------------------------------------------------
   const [showModal, setShowModal] = useState(false);
 
@@ -188,7 +141,7 @@ export default function RomanticFonPage() {
   };
 
   // ---------------------------------------------------------------------------
-  // 5. Audio Synthesizer (Web Audio API)
+  // 4. Web Audio API Synthesizer
   // ---------------------------------------------------------------------------
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -196,7 +149,9 @@ export default function RomanticFonPage() {
 
   const initAudio = () => {
     if (!audioCtxRef.current) {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       audioCtxRef.current = new AudioCtx();
     }
   };
@@ -292,7 +247,7 @@ export default function RomanticFonPage() {
       {/* Background Interactive Particle Canvas */}
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />
 
-      {/* Decorative Flying Clouds Layer 1 (CSS Animated) */}
+      {/* Decorative Flying Clouds Layer */}
       <div className="fixed top-12 left-0 w-full pointer-events-none z-0 opacity-80">
         <div className="text-6xl sm:text-8xl animate-[floatCloud_35s_linear_infinite]">
           ☁️
@@ -309,7 +264,7 @@ export default function RomanticFonPage() {
         </div>
       </div>
 
-      {/* Music Toggle Button (Fixed Top-Right) */}
+      {/* Music Toggle Button */}
       <button
         onClick={toggleMusic}
         className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/80 backdrop-blur-md border border-sky-200 text-sky-700 font-medium text-xs sm:text-sm shadow-lg hover:bg-white hover:scale-105 transition-all"
@@ -318,108 +273,75 @@ export default function RomanticFonPage() {
         <span>{isPlayingMusic ? "กำลังเล่นเพลงพาสเทล ✨" : "เปิดเพลงพาสเทล ☁️"}</span>
       </button>
 
-      {/* Main Glassmorphism Card Container (Full Responsive) */}
-      <main className="relative z-10 w-full max-w-xl mx-auto my-auto">
-        <div className="glass-cloud-card rounded-3xl sm:rounded-[36px] p-6 sm:p-10 text-center relative overflow-hidden transition-all duration-300">
-          {/* Header Cloud Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-100/90 border border-sky-300/60 text-sky-800 text-xs sm:text-sm font-semibold mb-6 shadow-sm">
-            <span className="animate-heart-pulse text-rose-500">☁️</span>
-            <span>ข้อความพิเศษจากแชทส่งตรงถึง "น้องฝน"</span>
-            <span className="animate-heart-pulse text-rose-500">💖</span>
+      {/* Main Clean & Gorgeous Glassmorphism Card */}
+      <main className="relative z-10 w-full max-w-lg mx-auto my-auto">
+        <div className="glass-cloud-card rounded-3xl sm:rounded-[40px] p-8 sm:p-12 text-center relative overflow-hidden transition-all duration-300">
+          {/* Badge Header */}
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-sky-100/90 border border-sky-300/60 text-sky-800 text-xs sm:text-sm font-semibold mb-8 shadow-sm">
+            <span className="animate-heart-pulse text-rose-500 text-base">💖</span>
+            <span>ข้อความพิเศษส่งตรงถึง "น้องฝน"</span>
+            <span className="animate-heart-pulse text-rose-500 text-base">💖</span>
           </div>
 
           {/* Big Main Headline */}
-          <h1 className="font-['Mitr'] text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-4 tracking-tight">
-            <span className="text-sky-800 block">ฝนครับ...</span>
-            <span className="bg-gradient-to-r from-sky-600 via-sky-500 to-rose-400 bg-clip-text text-transparent animate-pulse-glow inline-block">
+          <h1 className="font-['Mitr'] text-4xl sm:text-6xl md:text-7xl font-bold leading-tight mb-8 tracking-tight">
+            <span className="text-sky-900 block mb-1">ฝนครับ</span>
+            <span className="bg-gradient-to-r from-sky-600 via-rose-400 to-pink-500 bg-clip-text text-transparent animate-pulse-glow inline-block">
               พี่จีบนะครับ
             </span>{" "}
-            ☁️💖
+            💖
           </h1>
 
-          {/* Responsive Subtitle */}
-          <p className="text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed mb-6 font-normal max-w-md mx-auto">
-            ถึงตอนนี้เราจะรู้จักกันผ่านแชท และยังไม่เคยเจอตัวจริง 📱✨
-            <br className="hidden sm:block" />
-            แต่ทุกครั้งที่แจ้งเตือนแชทจากฝนเด้งขึ้นมา พี่ก็อมยิ้มคนเดียวตลอดเลยครับ 😊
-          </p>
-
           {/* Cloud Illustration Graphic */}
-          <div className="my-6 relative flex justify-center items-center">
-            <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-gradient-to-tr from-sky-200 to-pink-100 p-2 shadow-inner flex items-center justify-center animate-bounce-slow border-2 border-white/80">
+          <div className="my-8 relative flex justify-center items-center">
+            <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-gradient-to-tr from-sky-200 via-pink-100 to-sky-100 p-2 shadow-lg flex items-center justify-center animate-bounce-slow border-4 border-white/90">
               <span className="text-6xl sm:text-7xl">☁️🌸</span>
             </div>
           </div>
 
-          {/* Love Notes Carousel Box */}
-          <div className="bg-white/70 border border-sky-200/80 rounded-2xl p-5 mb-8 shadow-sm">
-            <div className="text-xs sm:text-sm font-semibold text-sky-700 flex items-center justify-center gap-1.5 mb-2">
-              <span>💬 ความในใจของพี่ที่ส่งผ่านแชท</span>
-            </div>
-            <div className="min-h-[64px] flex items-center justify-center px-2">
-              <p className="text-slate-700 font-['Mali'] text-sm sm:text-base italic transition-all duration-300">
-                {quotes[activeQuote]}
-              </p>
-            </div>
-            {/* Dots */}
-            <div className="flex justify-center gap-1.5 mt-3">
-              {quotes.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveQuote(idx)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    idx === activeQuote ? "w-6 bg-sky-500" : "w-2 bg-sky-200"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
+          {/* Simple Courting Question */}
+          <p className="font-['Mitr'] text-lg sm:text-2xl text-slate-800 font-semibold mb-8">
+            ขอโอกาสให้พี่ได้ตั้งใจจีบฝนนะครับ 🥺🌸
+          </p>
 
-          {/* Confession Question Section */}
-          <div className="mb-6">
-            <h2 className="font-['Mitr'] text-lg sm:text-xl md:text-2xl text-slate-800 font-semibold mb-6">
-              ฝนจะยอมเปิดโอกาสให้พี่จีบไหมครับ? 🥺🌸
-            </h2>
+          {/* Interactive Button Group */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 min-h-[60px] relative">
+            {/* Accept Button */}
+            <button
+              onClick={handleAccept}
+              className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-sky-500 to-rose-400 text-white font-semibold text-base sm:text-lg shadow-lg shadow-sky-300/50 hover:shadow-sky-400/70 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>💖</span>
+              <span>ตกลงค่ะ / ยอมให้จีบ ☁️</span>
+            </button>
 
-            {/* Interactive Button Group */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 min-h-[60px] relative">
-              {/* Accept Button */}
-              <button
-                onClick={handleAccept}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-sky-500 to-rose-400 text-white font-semibold text-base shadow-lg shadow-sky-300/50 hover:shadow-sky-400/60 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>💖</span>
-                <span>ตกลงค่ะ / ยอมให้จีบ ☁️</span>
-              </button>
-
-              {/* Dodge Button */}
-              <button
-                onClick={handleDodge}
-                onMouseEnter={handleDodge}
-                onTouchStart={(e) => {
-                  e.preventDefault();
-                  handleDodge();
-                }}
-                style={
-                  dodgePos
-                    ? {
-                        position: "fixed",
-                        left: `${dodgePos.x}px`,
-                        top: `${dodgePos.y}px`,
-                        zIndex: 999,
-                      }
-                    : { position: "relative" }
-                }
-                className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/80 border border-slate-300 text-slate-600 font-semibold text-sm shadow-md hover:bg-white transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>🙈</span>
-                <span>{dodgeMessages[dodgeTextIndex]}</span>
-              </button>
-            </div>
+            {/* Dodge Button */}
+            <button
+              onClick={handleDodge}
+              onMouseEnter={handleDodge}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleDodge();
+              }}
+              style={
+                dodgePos
+                  ? {
+                      position: "fixed",
+                      left: `${dodgePos.x}px`,
+                      top: `${dodgePos.y}px`,
+                      zIndex: 999,
+                    }
+                  : { position: "relative" }
+              }
+              className="w-full sm:w-auto px-6 py-4 rounded-full bg-white/80 border border-slate-300 text-slate-600 font-semibold text-sm sm:text-base shadow-md hover:bg-white transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>🙈</span>
+              <span>{dodgeMessages[dodgeTextIndex]}</span>
+            </button>
           </div>
 
           {/* Footer Note */}
-          <footer className="pt-4 border-t border-sky-100 text-xs text-sky-600/80">
+          <footer className="mt-10 pt-4 border-t border-sky-100 text-xs text-sky-600/80">
             Made with ☁️💖 for Fon | สัญญาว่าจะตั้งใจจีบให้ดีที่สุดครับ ✨
           </footer>
         </div>
@@ -428,19 +350,18 @@ export default function RomanticFonPage() {
       {/* Success Celebration Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fadeIn">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm sm:max-w-md w-full text-center shadow-2xl border-4 border-sky-200 relative animate-scaleUp">
+          <div className="bg-white rounded-3xl p-8 sm:p-10 max-w-sm sm:max-w-md w-full text-center shadow-2xl border-4 border-sky-200 relative animate-scaleUp">
             <div className="text-6xl mb-4 animate-bounce">🥳🎉☁️</div>
             <h3 className="font-['Mitr'] text-2xl sm:text-3xl font-bold text-sky-800 mb-3">
               เย้~~~~! ขอบคุณน้า 💖
             </h3>
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6 font-normal">
-              ขอบคุณมากๆ นะครับน้องฝน! พี่สัญญาว่าจะตั้งใจจีบและดูแลหัวใจดวงนี้ผ่านแชทอย่างดีที่สุด...
-              แล้วไว้นัดวันไปเจอตัวจริงทานไอติมด้วยกันนะครับ 🍦✨🌸
+            <p className="text-slate-600 text-base leading-relaxed mb-6 font-normal">
+              ขอบคุณมากๆ นะครับน้องฝน! พี่สัญญาว่าจะตั้งใจจีบอย่างดีที่สุดเลยครับ 🍦✨🌸
             </p>
             <div className="text-2xl mb-6">✨ ☁️ 🌸 💖 ✨</div>
             <button
               onClick={() => setShowModal(false)}
-              className="w-full py-3.5 rounded-full bg-sky-500 hover:bg-sky-600 text-white font-semibold text-base shadow-md transition-all"
+              className="w-full py-3.5 rounded-full bg-sky-500 hover:bg-sky-600 text-white font-semibold text-base shadow-md transition-all cursor-pointer"
             >
               ส่งรอยยิ้มให้พี่ ☺️💖
             </button>
