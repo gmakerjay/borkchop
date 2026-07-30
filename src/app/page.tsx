@@ -91,28 +91,40 @@ export default function RomanticFonPage() {
   }, []);
 
   // ---------------------------------------------------------------------------
-  // Instant Floating Popups / Speech Bubbles
+  // Playful Dodging Popup Speech Bubble (Mobile & Desktop Touch Optimized)
   // ---------------------------------------------------------------------------
   const cheekyPopups = [
     { text: "กดเข้ามาดูแบบนี้ แอบมีใจให้พี่แล้วป่ะเนี่ย? 😜", icon: "💬" },
     { text: "แชทตั้งนาน เดี๋ยวพาไปเลี้ยงชานมไข่มุกเลย! 🧋✨", icon: "🧋" },
     { text: "พี่จีบจริงจังนะเนี่ย ไม่ได้มาเล่นๆ! 🌸", icon: "💖" },
     { text: "น่ารักขนาดนี้ ไม่ให้พี่จีบได้ยังไง! 😻🐾", icon: "😻" },
+    { text: "จับให้ได้สิคะ! ปุ่มนี้วาร์ปไวมากนะ 🏃‍♂️💨", icon: "🚀" },
     { text: "อ่านถึงตรงนี้ แอบอมยิ้มอยู่ใช่มั้ยล่ะ รู้นะ! 🙈", icon: "✨" },
+    { text: "ถ้ากดจับปุ่มนี้ได้ พี่ยอมเลี้ยงบุฟเฟต์เลยเอ้า! 🍦✨", icon: "🍦" },
     { text: "ขอโอกาสให้พี่ดูแลหัวใจดวงนี้นะครับ 🙏💕", icon: "🌸" },
   ];
 
+  const [dodgePos, setDodgePos] = useState<{ x: number; y: number } | null>(null);
   const [activePopupIndex, setActivePopupIndex] = useState(0);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActivePopupIndex((prev) => (prev + 1) % cheekyPopups.length);
-    }, 3200);
-    return () => clearInterval(timer);
-  }, [cheekyPopups.length]);
+  const handleDodge = () => {
+    const padding = 20;
+    const btnWidth = Math.min(320, window.innerWidth - 40);
+    const btnHeight = 60;
+
+    const maxX = window.innerWidth - btnWidth - padding;
+    const maxY = window.innerHeight - btnHeight - padding;
+
+    const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+    const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+
+    setDodgePos({ x: randomX, y: randomY });
+    setActivePopupIndex((prev) => (prev + 1) % cheekyPopups.length);
+    playPopSound();
+  };
 
   // ---------------------------------------------------------------------------
-  // Autoplay Web Audio API Synthesizer
+  // Web Audio API Synthesizer & Autoplay
   // ---------------------------------------------------------------------------
   const [isPlayingMusic, setIsPlayingMusic] = useState(true);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -125,6 +137,29 @@ export default function RomanticFonPage() {
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       audioCtxRef.current = new AudioCtx();
     }
+  };
+
+  const playPopSound = () => {
+    try {
+      initAudio();
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
+      if (ctx.state === "suspended") ctx.resume();
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(450, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.08);
+
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.08);
+    } catch {}
   };
 
   const startMusicLoop = () => {
@@ -168,7 +203,6 @@ export default function RomanticFonPage() {
     } catch {}
   };
 
-  // Autoplay setup on mount + user interaction fallback for browser policies
   useEffect(() => {
     startMusicLoop();
 
@@ -266,12 +300,34 @@ export default function RomanticFonPage() {
             </div>
           </div>
 
-          {/* Instant Popping Cheeky Speech Bubble */}
-          <div className="mt-6 mb-2 relative">
-            <div className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white/90 border-2 border-rose-300 text-rose-600 font-semibold text-sm sm:text-base shadow-xl animate-bounce transition-all duration-500">
-              <span className="text-lg">{cheekyPopups[activePopupIndex].icon}</span>
+          {/* Running Dodging Speech Bubble Toast (Full Mobile & Touch Support) */}
+          <div className="mt-6 mb-4 min-h-[60px] flex items-center justify-center">
+            <button
+              onClick={handleDodge}
+              onMouseEnter={handleDodge}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleDodge();
+              }}
+              onPointerDown={(e) => {
+                e.preventDefault();
+                handleDodge();
+              }}
+              style={
+                dodgePos
+                  ? {
+                      position: "fixed",
+                      left: `${dodgePos.x}px`,
+                      top: `${dodgePos.y}px`,
+                      zIndex: 999,
+                    }
+                  : { position: "relative" }
+              }
+              className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full bg-white/95 border-2 border-rose-300 text-rose-600 font-semibold text-xs sm:text-sm shadow-2xl hover:bg-white transition-all duration-200 cursor-pointer whitespace-nowrap animate-bounce active:scale-90 select-none"
+            >
+              <span className="text-base">{cheekyPopups[activePopupIndex].icon}</span>
               <span>{cheekyPopups[activePopupIndex].text}</span>
-            </div>
+            </button>
           </div>
 
           {/* Footer Note */}
