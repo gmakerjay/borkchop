@@ -91,47 +91,25 @@ export default function RomanticFonPage() {
   }, []);
 
   // ---------------------------------------------------------------------------
-  // Cheeky Dodge Button ("ขอคิดดูก่อน 🙈" / Running Popups)
+  // Instant Floating Popups / Speech Bubbles
   // ---------------------------------------------------------------------------
-  const [dodgePos, setDodgePos] = useState<{ x: number; y: number } | null>(null);
-  const [dodgeTextIndex, setDodgeTextIndex] = useState(0);
-
-  const cheekyMessages = [
-    "กดปุ่มนี้ไม่ให้คิดหรอกน้า! 😜",
-    "แชทตั้งนาน เดี๋ยวเลี้ยงชานมไข่มุกเลย! 🧋✨",
-    "จะกดหนีไปไหน! ปุ่มซ้ายกดง่ายกว่าเยอะเลย 💖",
-    "แหน่ะ! มือไวเหมือนกันนะเราเนี่ย 🐱🐾",
-    "อย่าใจร้ายกับคนหล่อเลยน้า 🥺✨",
-    "ถ้ากดปุ่มนี้ทัน พี่ยอมเลี้ยงบุฟเฟต์เลยเอ้า! 🏃‍♂️💨",
-    "พี่จีบจริงจังนะเนี่ย ไม่ได้มาเล่นๆ! 🌸",
-    "กดยากขนาดนี้ แสดงว่าอยากให้พี่จีบต่อใช่ไหมล่ะ 😜",
-    "ยอมกดปุ่มซ้ายเถอะน้า ขอร้องล่ะครับ 🙏💕",
-    "เดี๋ยวปุ่มนี้ขยับเร็วกว่าเดิม 100 เท่าเลยนะ! 🚀💨",
-    "อุ๊ย! กดไม่ทันล่ะสิ 🤪",
-    "ถ้าไม่ยอมให้จีบ จะส่งสติกเกอร์แมวก่อกวน 24 ชม. เลยนะ! 🐱💥",
-    "ปุ่มนี้เป็นปุ่มหลอกนะจ๊ะ กดซ้ายเถอะ! 🙈✨",
+  const cheekyPopups = [
+    { text: "กดเข้ามาดูแบบนี้ แอบมีใจให้พี่แล้วป่ะเนี่ย? 😜", icon: "💬" },
+    { text: "แชทตั้งนาน เดี๋ยวพาไปเลี้ยงชานมไข่มุกเลย! 🧋✨", icon: "🧋" },
+    { text: "พี่จีบจริงจังนะเนี่ย ไม่ได้มาเล่นๆ! 🌸", icon: "💖" },
+    { text: "น่ารักขนาดนี้ ไม่ให้พี่จีบได้ยังไง! 😻🐾", icon: "😻" },
+    { text: "อ่านถึงตรงนี้ แอบอมยิ้มอยู่ใช่มั้ยล่ะ รู้นะ! 🙈", icon: "✨" },
+    { text: "ขอโอกาสให้พี่ดูแลหัวใจดวงนี้นะครับ 🙏💕", icon: "🌸" },
   ];
 
-  const handleDodge = () => {
-    const padding = 20;
-    const maxX = window.innerWidth - 240;
-    const maxY = window.innerHeight - 90;
+  const [activePopupIndex, setActivePopupIndex] = useState(0);
 
-    const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
-    const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
-
-    setDodgePos({ x: randomX, y: randomY });
-    setDodgeTextIndex((prev) => (prev + 1) % cheekyMessages.length);
-    playPopSound();
-  };
-
-  // Modal State
-  const [showModal, setShowModal] = useState(false);
-
-  const handleAccept = () => {
-    setShowModal(true);
-    playChimeSound();
-  };
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActivePopupIndex((prev) => (prev + 1) % cheekyPopups.length);
+    }, 3200);
+    return () => clearInterval(timer);
+  }, [cheekyPopups.length]);
 
   // ---------------------------------------------------------------------------
   // Web Audio API Synthesizer
@@ -147,29 +125,6 @@ export default function RomanticFonPage() {
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       audioCtxRef.current = new AudioCtx();
     }
-  };
-
-  const playPopSound = () => {
-    try {
-      initAudio();
-      const ctx = audioCtxRef.current;
-      if (!ctx) return;
-      if (ctx.state === "suspended") ctx.resume();
-
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(400, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.08);
-
-      gain.gain.setValueAtTime(0.12, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.08);
-    } catch {}
   };
 
   const playChimeSound = () => {
@@ -292,70 +247,20 @@ export default function RomanticFonPage() {
             </div>
           </div>
 
-          {/* Interactive Cheeky Running Button Group */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 min-h-[64px] relative">
-            {/* Main Sweet Button */}
-            <button
-              onClick={handleAccept}
-              className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-sky-500 via-rose-400 to-pink-500 text-white font-semibold text-base sm:text-lg shadow-lg shadow-sky-300/50 hover:shadow-sky-400/70 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>😻</span>
-              <span>ยอมให้พี่จีบเถอะน้า 💖</span>
-            </button>
-
-            {/* Cheeky Dodge Button that runs around! */}
-            <button
-              onClick={handleDodge}
-              onMouseEnter={handleDodge}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                handleDodge();
-              }}
-              style={
-                dodgePos
-                  ? {
-                      position: "fixed",
-                      left: `${dodgePos.x}px`,
-                      top: `${dodgePos.y}px`,
-                      zIndex: 999,
-                    }
-                  : { position: "relative" }
-              }
-              className="w-full sm:w-auto px-6 py-4 rounded-full bg-white/90 border-2 border-rose-300 text-rose-600 font-semibold text-xs sm:text-sm shadow-xl hover:bg-white transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap animate-bounce"
-            >
-              <span>🏃‍♂️💨</span>
-              <span>{cheekyMessages[dodgeTextIndex]}</span>
-            </button>
+          {/* Instant Popping Cheeky Speech Bubble */}
+          <div className="mt-6 mb-2 relative">
+            <div className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white/90 border-2 border-rose-300 text-rose-600 font-semibold text-sm sm:text-base shadow-xl animate-bounce transition-all duration-500">
+              <span className="text-lg">{cheekyPopups[activePopupIndex].icon}</span>
+              <span>{cheekyPopups[activePopupIndex].text}</span>
+            </div>
           </div>
 
           {/* Footer Note */}
-          <footer className="mt-10 pt-4 border-t border-sky-100 text-xs text-sky-600/80">
+          <footer className="mt-8 pt-4 border-t border-sky-100 text-xs text-sky-600/80">
             Made with ☁️😻 for Fon ✨
           </footer>
         </div>
       </main>
-
-      {/* Celebration Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fadeIn">
-          <div className="bg-white rounded-3xl p-8 sm:p-10 max-w-sm sm:max-w-md w-full text-center shadow-2xl border-4 border-sky-200 relative animate-scaleUp">
-            <div className="text-6xl mb-4 animate-bounce">🥳🎉😻</div>
-            <h3 className="font-['Mitr'] text-2xl sm:text-3xl font-bold text-sky-800 mb-3">
-              เย้~~~~! ขอบคุณน้า 💖
-            </h3>
-            <p className="text-slate-600 text-base leading-relaxed mb-6 font-normal">
-              ขอบคุณมากๆ นะครับน้องฝน! พี่สัญญาว่าจะตั้งใจจีบให้ดีที่สุด... เดี๋ยวพาไปเลี้ยงชานมไข่มุกเลย! 🧋✨😻
-            </p>
-            <div className="text-2xl mb-6">✨ ☁️ 😻 💖 ✨</div>
-            <button
-              onClick={() => setShowModal(false)}
-              className="w-full py-3.5 rounded-full bg-sky-500 hover:bg-sky-600 text-white font-semibold text-base shadow-md transition-all cursor-pointer"
-            >
-              ส่งรอยยิ้มให้พี่ ☺️😻
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
