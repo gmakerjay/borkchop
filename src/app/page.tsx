@@ -112,9 +112,9 @@ export default function RomanticFonPage() {
   }, [cheekyPopups.length]);
 
   // ---------------------------------------------------------------------------
-  // Web Audio API Synthesizer
+  // Autoplay Web Audio API Synthesizer
   // ---------------------------------------------------------------------------
-  const [isPlayingMusic, setIsPlayingMusic] = useState(false);
+  const [isPlayingMusic, setIsPlayingMusic] = useState(true);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const musicIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -127,51 +127,27 @@ export default function RomanticFonPage() {
     }
   };
 
-  const playChimeSound = () => {
+  const startMusicLoop = () => {
     try {
       initAudio();
       const ctx = audioCtxRef.current;
       if (!ctx) return;
-      if (ctx.state === "suspended") ctx.resume();
 
-      const freqs = [523.25, 659.25, 783.99, 1046.5];
-      freqs.forEach((f, i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(f, ctx.currentTime + i * 0.1);
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
 
-        gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.1);
-        gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + i * 0.1 + 0.04);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.7);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(ctx.currentTime + i * 0.1);
-        osc.stop(ctx.currentTime + i * 0.1 + 0.7);
-      });
-    } catch {}
-  };
-
-  const toggleMusic = () => {
-    initAudio();
-    const ctx = audioCtxRef.current;
-    if (ctx && ctx.state === "suspended") {
-      ctx.resume();
-    }
-
-    if (isPlayingMusic) {
-      setIsPlayingMusic(false);
       if (musicIntervalRef.current) clearInterval(musicIntervalRef.current);
-    } else {
-      setIsPlayingMusic(true);
-      playChimeSound();
+
       const notes = [329.63, 392.0, 493.88, 587.33, 349.23, 440.0, 523.25, 659.25];
       let step = 0;
+
       musicIntervalRef.current = setInterval(() => {
         try {
           if (!audioCtxRef.current) return;
           const c = audioCtxRef.current;
+          if (c.state === "suspended") c.resume();
+
           const osc = c.createOscillator();
           const gain = c.createGain();
           osc.type = "sine";
@@ -187,6 +163,49 @@ export default function RomanticFonPage() {
           osc.stop(c.currentTime + 0.5);
         } catch {}
       }, 400);
+
+      setIsPlayingMusic(true);
+    } catch {}
+  };
+
+  // Autoplay setup on mount + user interaction fallback for browser policies
+  useEffect(() => {
+    startMusicLoop();
+
+    const handleFirstInteraction = () => {
+      if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+        audioCtxRef.current.resume();
+      }
+      startMusicLoop();
+      window.removeEventListener("touchstart", handleFirstInteraction);
+      window.removeEventListener("click", handleFirstInteraction);
+      window.removeEventListener("scroll", handleFirstInteraction);
+    };
+
+    window.addEventListener("touchstart", handleFirstInteraction, { once: true });
+    window.addEventListener("click", handleFirstInteraction, { once: true });
+    window.addEventListener("scroll", handleFirstInteraction, { once: true });
+
+    return () => {
+      if (musicIntervalRef.current) clearInterval(musicIntervalRef.current);
+      window.removeEventListener("touchstart", handleFirstInteraction);
+      window.removeEventListener("click", handleFirstInteraction);
+      window.removeEventListener("scroll", handleFirstInteraction);
+    };
+  }, []);
+
+  const toggleMusic = () => {
+    initAudio();
+    const ctx = audioCtxRef.current;
+    if (ctx && ctx.state === "suspended") {
+      ctx.resume();
+    }
+
+    if (isPlayingMusic) {
+      setIsPlayingMusic(false);
+      if (musicIntervalRef.current) clearInterval(musicIntervalRef.current);
+    } else {
+      startMusicLoop();
     }
   };
 
